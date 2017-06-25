@@ -10,11 +10,12 @@ use PHPUnit\Framework\TestCase;
 class EventSourceRepositoryTest extends TestCase
 {
 
+    /** @var \Mockery\MockInterface */
 	private $eventBus;
 
 	public function setUp()
 	{
-		$this->eventBus = \Phake::mock(EventMessageBus::class);
+		$this->eventBus = \Mockery::mock(EventMessageBus::class);
 	}
 
 	/**
@@ -36,9 +37,9 @@ class EventSourceRepositoryTest extends TestCase
 
 	protected function mockEventStoreReturning($uuid, $eventStream)
 	{
-		$eventStore = \Phake::mock(EventStore::class);
+		$eventStore = \Mockery::mock(EventStore::class);
 
-		\Phake::when($eventStore)->find($uuid)->thenReturn($eventStream);
+        $eventStore->shouldReceive('find')->with($uuid)->andReturn($eventStream);
 
 		return $eventStore;
 	}
@@ -83,8 +84,7 @@ class EventSourceRepositoryTest extends TestCase
 	{
 		$id = new EventSourcedAggregateId();
 
-		$eventStore = \Phake::mock(EventStore::class);
-		\Phake::when($eventStore)->find($id->getUuid())->thenThrow(new AggregateRootNotFoundException());
+		$eventStore = \Mockery::mock(EventStore::class)->shouldReceive('find')->with($id->getUuid())->andThrow(new AggregateRootNotFoundException())->getMock();
 		$repository = new EventSourceRepository($eventStore, $this->eventBus);
 
 		self::expectException(AggregateRootNotFoundException::class);
@@ -104,12 +104,14 @@ class EventSourceRepositoryTest extends TestCase
 		$tx     = new Transaction(new EventStream('foo', $object->getId()->getUuid()), [ $event ]);
 
 		$eventStore = self::getMockBuilder(EventStore::class)->setMethods([ 'commit', 'find' ])->getMock();
+		$eventBus = $this->eventBus;
+		$eventBus->shouldReceive('publish');
 		$repository = new EventSourceRepository($eventStore, $this->eventBus);
 
 		$eventStore->expects(self::once())->method('commit')->with(self::isInstanceOf(EventStream::class))->willReturn($tx);
 		$repository->save($object);
 
-		\Phake::verify($this->eventBus)->publish($event);
+		$this->eventBus->shouldReceive('publish')->with($event);
 
 		self::assertEquals($id->getUuid(), $event->getAggregateId()->getUuid());
 	}
