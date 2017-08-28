@@ -22,6 +22,17 @@ class ReflectionSerializer implements Serializer
 		return $this->fromArrayToObject($data);
 	}
 
+	public function toArray($value)
+	{
+		if (is_object($value)) {
+			return $this->fromObjectToArray($value);
+		} elseif (is_array($value)) {
+			return $this->fromArrayToArray($value);
+		} else {
+			return $value;
+		}
+	}
+
 	private function fromArrayToArrayObjects(array $data)
 	{
 		$newData = [];
@@ -55,7 +66,7 @@ class ReflectionSerializer implements Serializer
 
 		foreach ($this->getProperties($className) as $fieldName => $reflField) {
 
-			if (empty($data[$fieldName])) {
+			if (!isset($data[$fieldName]) || $data[$fieldName] === null) {
 				continue;
 			}
 			if (is_array($data[$fieldName])) {
@@ -116,17 +127,6 @@ class ReflectionSerializer implements Serializer
 		}
 
 		return $properties;
-	}
-
-	public function toArray($value)
-	{
-		if (is_object($value)) {
-			return $this->fromObjectToArray($value);
-		} elseif (is_array($value)) {
-			return $this->fromArrayToArray($value);
-		} else {
-			return $value;
-		}
 	}
 
 	/**
