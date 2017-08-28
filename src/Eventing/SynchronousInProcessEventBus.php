@@ -39,7 +39,7 @@ class SynchronousInProcessEventBus implements EventMessageBus
 				return;
 			}
 
-			$this->publish(new EventExecutionFailed($event->getAggregateId(), [
+			$this->publish(new EventExecutionFailed([
 				'service'   => get_class($service),
 				'exception' => $e,
 				'event'     => $event,
