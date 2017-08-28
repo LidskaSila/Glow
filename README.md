@@ -1,5 +1,14 @@
 # PHP Glow library
 
+<b>
+This library is to show another way to tackle CQRS and event sourcing, but is 
+not considered as suitable for real production projects. 
+For this purpose rather use <a href="https://github.com/prooph">Prooph toolbox</a>
+or <a href="https://github.com/LidskaSila/Prooph">Nette extension for Prooph toolbox</a>.
+It supports snapshoting, read model projections, is easy to make event replaying and
+is way more flexible.
+</b>
+
 This PHP CQRS EventSourcing library is based on Benjamin Eberlei's [LiteCQRS 
 for php](https://github.com/beberlei/litecqrs-php) which was not maintained for 
 quite a long time. This fork is bringing it back to life, but it is not to be 
